@@ -9,6 +9,6 @@ namespace Sokoban.Service
         public Task<StarTresholdLookup> GetStarTresholdsAsync(string levelId);
         public Task<string> GetBiomeIdAsync(string levelId);
         public Task<string> GetNextLevelIdAsync(string? previousLevelId);
-        public Task<IEnumerable<LevelIdStarTresholdsPair>> GetLevelIdsAndStartTresholdsAsync();
+        public Task<IEnumerable<LevelIdStarTresholdsPair>> GetLevelIdsAndStarTresholdsAsync();
     }
 }

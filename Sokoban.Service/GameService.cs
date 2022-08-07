@@ -20,7 +20,7 @@ namespace Sokoban.Service
             this.gameEventHandler = gameEventHandler;
         }
 
-        public async Task<Game> StartNewAsync(string levelId) 
+        public async Task<Game> StartNewAsync(string levelId)
         {
             var initialState = await levelDataRepository.GetInitialGameStateAsync(levelId);
             return new Game(
@@ -34,9 +34,14 @@ namespace Sokoban.Service
                 }));
         }
 
+        public Task<string> GetBiomeIdAsync(string levelId)
+        {
+            return levelDataRepository.GetBiomeIdAsync(levelId);
+        }
+
         public async Task<IEnumerable<LevelInfo>> GetLevelsAsync()
         {
-            var starTresholds = await levelDataRepository.GetLevelIdsAndStartTresholdsAsync();
+            var starTresholds = await levelDataRepository.GetLevelIdsAndStarTresholdsAsync();
             var moveCounts = await playerDataRepository.GetCompletedLevelMoveCountsAsync();
             return starTresholds.LeftJoin(
                 moveCounts,
