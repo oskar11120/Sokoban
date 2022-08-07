@@ -15,12 +15,15 @@ namespace Sokoban.Engine
         }
 
         public GameState CurrentState => states.Current;
+        public int MoveCount => states.Count - 1;
 
         public void TryMoveSnail(Vector2 targetPosition)
         {
-            var canMove = IsNextToSnail(targetPosition) &&
-                !IsAnythingBlockingSnailInPosition(targetPosition);
-            if (!canMove)
+            if (IsNextToSnail(targetPosition) || CurrentState.AllTrashBagsAreInTrashCans)
+            {
+                return;
+            }
+            if (IsAnythingBlockingSnailInPosition(targetPosition))
             {
                 gameEventHandler.OnMovementBlockedByWall();
                 return;
@@ -29,8 +32,8 @@ namespace Sokoban.Engine
             var movement = targetPosition - CurrentState.SnailPosition;
             var newState = TryMoveEntity(targetPosition, targetPosition + movement, CurrentState);
             newState = TryMoveEntity(CurrentState.SnailPosition, targetPosition, newState);
-            states.Add(newState);
             ApplyEventHandlers(newState);
+            states.Add(newState);
         }
 
         public bool CanUndo() => states.CanUndo();
@@ -53,6 +56,9 @@ namespace Sokoban.Engine
                 gameEventHandler.OnTrashEnteringTrashCan();
             if (newTrashBagInTrashCanCount < currentTrashBagInTrashCanCount)
                 gameEventHandler.OnTrashLeavingTrashCan();
+
+            if (newState.AllTrashBagsAreInTrashCans)
+                gameEventHandler.OnCompletion();
         }
 
         private bool DidAnythingTeleport(GameState newState)

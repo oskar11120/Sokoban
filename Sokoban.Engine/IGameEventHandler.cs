@@ -7,5 +7,6 @@
         void OnMovementBlockedByWall();
         void OnTrashEnteringTrashCan();
         void OnTrashLeavingTrashCan();
+        void OnCompletion();
     }
 }

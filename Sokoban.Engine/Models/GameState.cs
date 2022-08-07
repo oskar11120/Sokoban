@@ -20,7 +20,12 @@ namespace Sokoban.Engine.Models
                     pair => pair.Key,
                     pair => pair.Value));
 
+        private readonly Lazy<bool> allTrashBagsAreInTrashCans = new(
+            () => TrashBagPositions.IsSubsetOf(TrashCanPositions));
+
         private IReadOnlyDictionary<Vector2, TeleportPositionPair> TeleportPositionPairs => teleportPositionPairs.Value;
+
+        public bool AllTrashBagsAreInTrashCans => allTrashBagsAreInTrashCans.Value;
 
         public bool TryGetOtherTeleportPosition(Vector2 position, [NotNullWhen(true)] out Vector2 result)
         {
