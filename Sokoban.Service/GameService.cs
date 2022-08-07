@@ -1,6 +1,7 @@
 ﻿using MoreLinq;
 using Sokoban.Engine;
 using Sokoban.Service.Models;
+using Sokoban.Service.Repositories;
 
 namespace Sokoban.Service
 {
@@ -39,16 +40,15 @@ namespace Sokoban.Service
             return levelDataRepository.GetBiomeIdAsync(levelId);
         }
 
-        public async Task<IEnumerable<LevelInfo>> GetLevelsAsync()
+        public async IAsyncEnumerable<LevelInfo> GetLevelsAsync()
         {
-            var starTresholds = await levelDataRepository.GetLevelIdsAndStarTresholdsAsync();
-            var moveCounts = await playerDataRepository.GetCompletedLevelMoveCountsAsync();
-            return starTresholds.LeftJoin(
-                moveCounts,
-                pair => pair.LevelId,
-                pair => pair.LevelId,
-                pair => new LevelInfo(pair.LevelId, pair.StarTresholds, null),
-                (one, other) => new LevelInfo(one.LevelId, one.StarTresholds, other.MoveCount));
+            var moveCountsByLevelId = await playerDataRepository.GetBestLevelMoveCountsByLevelIdAsync();
+            var levelIdsAndStarTresholds = levelDataRepository.GetLevelIdsAndStarTresholdsAsync();
+            await foreach (var (levelId, starTreshold) in levelIdsAndStarTresholds)
+            {
+                int? moveCount = moveCountsByLevelId.TryGetValue(levelId, out var count) ? count : null;
+                yield return new LevelInfo(levelId, starTreshold, moveCount);
+            }
         }
     }
 }
