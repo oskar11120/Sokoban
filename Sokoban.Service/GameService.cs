@@ -5,7 +5,7 @@ using Sokoban.Service.Repositories;
 
 namespace Sokoban.Service
 {
-    internal class GameService
+    internal class GameService : IGameService
     {
         private readonly ILevelDataRepository levelDataRepository;
         private readonly IPlayerDataRepository playerDataRepository;
@@ -31,7 +31,7 @@ namespace Sokoban.Service
                     var previousMoveCount = await playerDataRepository.GetBestLevelMoveCountAsync(levelId);
                     await onCompletion(moveCount, previousMoveCount, await levelDataRepository.GetStarTresholdsAsync(levelId));
                     if (previousMoveCount is null || previousMoveCount < moveCount)
-                        await playerDataRepository.UpdateBestLevelMoveCountAsync(levelId);
+                        await playerDataRepository.UpdateBestLevelMoveCountAsync(levelId, moveCount);
                 }));
         }
 
