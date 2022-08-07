@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Extensions.DependencyInjection;
+using Sokoban.Service;
 
 namespace Sokoban.Monogame.Android
 {
@@ -10,6 +11,7 @@ namespace Sokoban.Monogame.Android
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
         private readonly IEnumerable<IRequiringLoadContent> servicesRequiringLoadContent;
+        private readonly IGameService gameService;
 
         public SokobanGame()
         {
@@ -17,6 +19,7 @@ namespace Sokoban.Monogame.Android
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             servicesRequiringLoadContent = Services.GetServices<IRequiringLoadContent>();
+            gameService = Services.GetRequiredService<IGameService>();
         }
 
         protected override void Initialize()
