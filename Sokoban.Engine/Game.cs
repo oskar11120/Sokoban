@@ -14,36 +14,19 @@ namespace Sokoban.Engine
 
         public GameState CurrentState => states.Current;
 
-        public bool TryMoveSnail(Vector2 targetPosition)
+        public void TryMoveSnail(Vector2 targetPosition)
         {
             var canMove = IsNextToSnail(targetPosition) &&
                 !IsAnythingBlockingSnailInPosition(targetPosition);
             if (!canMove)
             {
-                return false;
+                return;
             }
 
-            if (CurrentState.TryGetOtherTeleportPosition(targetPosition, out var otherTeleportPosition))
-            {
-                states.Add(CurrentState with { SnailPosition = otherTeleportPosition });
-            }
-            else if (CurrentState.TrashBagPositions.Contains(targetPosition))
-            {
-                var newTrashBagPosition = targetPosition + targetPosition - CurrentState.SnailPosition;
-                var willTrashBagBeTeleported = CurrentState.TryGetOtherTeleportPosition(newTrashBagPosition, out var teleportPosition);
-                newTrashBagPosition = willTrashBagBeTeleported ? teleportPosition : newTrashBagPosition;
-                var newState = CurrentState with
-                {
-                    SnailPosition = targetPosition,
-                    TrashBagPositions = CurrentState.TrashBagPositions
-                        .Remove(targetPosition)
-                        .Add(newTrashBagPosition)
-
-                };
-                states.Add(newState);
-            }
-
-            return true;
+            var movement = targetPosition - CurrentState.SnailPosition;
+            var newState = TryMoveEntity(targetPosition, targetPosition + movement, CurrentState);
+            newState = TryMoveEntity(CurrentState.SnailPosition, targetPosition, newState);
+            states.Add(newState);
         }
 
         public bool CanUndo() => states.CanUndo();
@@ -51,6 +34,18 @@ namespace Sokoban.Engine
         public bool CanRedo() => states.CanRedo();
         public void Redo() => states.Redo();
         public void Restart() => states.Clear();
+
+        private GameState TryMoveEntity(Vector2 moveableEntityPosition, Vector2 targetPosition, GameState gameState)
+        {
+            var movement = targetPosition - moveableEntityPosition;
+            var targetPositionIsTeleportPosition = CurrentState.TryGetOtherTeleportPosition(targetPosition, out var otherTeleportPosition);
+            return targetPositionIsTeleportPosition ?
+                CurrentState
+                    .TryUpdatePosition(otherTeleportPosition, otherTeleportPosition + movement)
+                    .TryUpdatePosition(targetPosition, otherTeleportPosition) :
+                CurrentState
+                    .TryUpdatePosition(moveableEntityPosition, targetPosition);              
+        }
 
         private bool IsNextToSnail(Vector2 position)
         {

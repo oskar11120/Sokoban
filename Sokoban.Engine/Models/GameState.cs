@@ -35,5 +35,23 @@ namespace Sokoban.Engine.Models
             result = default;
             return false;
         }
+
+        public GameState TryUpdatePosition(Vector2 currentPosition, Vector2 targetPosition)
+        {
+            if (SnailPosition == currentPosition)
+            {
+                return this with { SnailPosition = targetPosition };
+            }
+            if (TrashBagPositions.Contains(currentPosition))
+            {
+                return this with
+                {
+                    TrashBagPositions = TrashBagPositions
+                        .Remove(currentPosition)
+                        .Add(targetPosition)
+                };
+            }
+            return this;
+        }
     }
 }
