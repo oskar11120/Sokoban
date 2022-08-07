@@ -12,7 +12,7 @@ namespace Sokoban.Service
             this IServiceCollection services,
             string levelDataDirectory,
             string playerDataDirectory,
-            IGameEventHandler gameEventHandler)
+            Func<IServiceProvider, IGameEventHandler> gameEventHandlerFactory)
         {
             return services
                 .AddSingleton<IJsonFileRepository<LevelData>>(new JsonFileRepository<LevelData>(levelDataDirectory))
@@ -20,7 +20,7 @@ namespace Sokoban.Service
                 .AddSingleton<ILevelDataRepository, LevelDataJsonRepository>()
                 .AddSingleton<IPlayerDataRepository, PlayerDataJsonRepository>()
                 .AddSingleton<IBaseGameEventHandler, BaseGameEventHandler>()
-                .AddSingleton(gameEventHandler)
+                .AddSingleton(gameEventHandlerFactory)
                 .AddSingleton<IGameService, GameService>();
         }
     }

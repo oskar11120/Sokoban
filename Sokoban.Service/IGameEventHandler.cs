@@ -9,6 +9,6 @@ namespace Sokoban.Service
         void OnMovementBlockedByWall();
         void OnTrashEnteringTrashCan();
         void OnTrashLeavingTrashCan();
-        Task OnCompletion(int moveCount, int? previousBestMoveCount, StarTresholdLookup starTresholds);
+        void OnCompletion();
     }
 }

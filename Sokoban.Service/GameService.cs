@@ -28,8 +28,8 @@ namespace Sokoban.Service
                 initialState,
                 new BaseGameEventHandler(gameEventHandler, async (moveCount, onCompletion) =>
                 {
+                    onCompletion();
                     var previousMoveCount = await playerDataRepository.GetBestLevelMoveCountAsync(levelId);
-                    await onCompletion(moveCount, previousMoveCount, await levelDataRepository.GetStarTresholdsAsync(levelId));
                     if (previousMoveCount is null || previousMoveCount < moveCount)
                         await playerDataRepository.UpdateBestLevelMoveCountAsync(levelId, moveCount);
                 }));
