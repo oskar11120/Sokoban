@@ -25,9 +25,9 @@ namespace Sokoban.Engine.Models
 
         private IReadOnlyDictionary<Vector2, TeleportPositionPair> TeleportPositionPairs => teleportPositionPairs.Value;
 
-        public bool AllTrashBagsAreInTrashCans => allTrashBagsAreInTrashCans.Value;
+        internal bool AllTrashBagsAreInTrashCans => allTrashBagsAreInTrashCans.Value;
 
-        public bool TryGetOtherTeleportPosition(Vector2 position, [NotNullWhen(true)] out Vector2 result)
+        internal bool TryGetOtherTeleportPosition(Vector2 position, [NotNullWhen(true)] out Vector2 result)
         {
             if (TeleportPositionPairs.TryGetValue(position, out var pair))
             {
@@ -41,7 +41,7 @@ namespace Sokoban.Engine.Models
             return false;
         }
 
-        public GameState TryUpdatePosition(Vector2 currentPosition, Vector2 targetPosition)
+        internal GameState TryUpdatePosition(Vector2 currentPosition, Vector2 targetPosition)
         {
             if (SnailPosition == currentPosition)
             {
