@@ -5,12 +5,14 @@ namespace Sokoban.Engine
 {
     public class Game
     {
-        public Game(GameState state)
+        private readonly GameStateHistory states;
+        private readonly IGameEventHandler gameEventHandler;
+
+        public Game(GameState state, IGameEventHandler gameEventHandler)
         {
             states = new(state);
+            this.gameEventHandler = gameEventHandler;
         }
-
-        private readonly GameStateHistory states;
 
         public GameState CurrentState => states.Current;
 
@@ -20,6 +22,7 @@ namespace Sokoban.Engine
                 !IsAnythingBlockingSnailInPosition(targetPosition);
             if (!canMove)
             {
+                gameEventHandler.OnMovementBlockedByWall();
                 return;
             }
 
@@ -27,6 +30,7 @@ namespace Sokoban.Engine
             var newState = TryMoveEntity(targetPosition, targetPosition + movement, CurrentState);
             newState = TryMoveEntity(CurrentState.SnailPosition, targetPosition, newState);
             states.Add(newState);
+            ApplyEventHandlers(newState);
         }
 
         public bool CanUndo() => states.CanUndo();
@@ -35,16 +39,52 @@ namespace Sokoban.Engine
         public void Redo() => states.Redo();
         public void Restart() => states.Clear();
 
+        private void ApplyEventHandlers(GameState newState)
+        {
+            if (newState.TrashBagPositions != CurrentState.TrashCanPositions)
+                gameEventHandler.OnTrashbagMovement();
+
+            if (DidAnythingTeleport(newState))
+                gameEventHandler.OnTeleport();
+
+            var newTrashBagInTrashCanCount = GetNumberOfTrashBagsInTrashCans(newState);
+            var currentTrashBagInTrashCanCount = GetNumberOfTrashBagsInTrashCans(CurrentState);
+            if (newTrashBagInTrashCanCount > currentTrashBagInTrashCanCount)
+                gameEventHandler.OnTrashEnteringTrashCan();
+            if (newTrashBagInTrashCanCount < currentTrashBagInTrashCanCount)
+                gameEventHandler.OnTrashLeavingTrashCan();
+        }
+
+        private bool DidAnythingTeleport(GameState newState)
+        {
+            return newState.TryGetOtherTeleportPosition(newState.SnailPosition, out _) ||
+                GetNumberOfTrashBagsOnTeleports(newState) > GetNumberOfTrashBagsOnTeleports(CurrentState);
+        }
+
+        private static int GetNumberOfTrashBagsOnTeleports(GameState gameState)
+        {
+            return gameState
+                .TrashBagPositions
+                .Count(position => gameState.TryGetOtherTeleportPosition(position, out _));
+        }
+
+        private static int GetNumberOfTrashBagsInTrashCans(GameState gameState)
+        {
+            return gameState
+                .TrashBagPositions
+                .Count(position => gameState.TrashCanPositions.Contains(position));
+        }
+
         private GameState TryMoveEntity(Vector2 moveableEntityPosition, Vector2 targetPosition, GameState gameState)
         {
             var movement = targetPosition - moveableEntityPosition;
             var targetPositionIsTeleportPosition = CurrentState.TryGetOtherTeleportPosition(targetPosition, out var otherTeleportPosition);
             return targetPositionIsTeleportPosition ?
-                CurrentState
+                gameState
                     .TryUpdatePosition(otherTeleportPosition, otherTeleportPosition + movement)
                     .TryUpdatePosition(targetPosition, otherTeleportPosition) :
-                CurrentState
-                    .TryUpdatePosition(moveableEntityPosition, targetPosition);              
+                gameState
+                    .TryUpdatePosition(moveableEntityPosition, targetPosition);
         }
 
         private bool IsNextToSnail(Vector2 position)

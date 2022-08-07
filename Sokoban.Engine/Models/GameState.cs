@@ -9,7 +9,7 @@ namespace Sokoban.Engine.Models
             IReadOnlySet<Vector2> WallPositions,
             ImmutableHashSet<Vector2> TrashBagPositions,
             IReadOnlySet<Vector2> TrashCanPositions,
-            IEnumerable<TeleportPositionPair> TeleportPositions)
+            IReadOnlyCollection<TeleportPositionPair> TeleportPositions)
     {
         private readonly Lazy<IReadOnlyDictionary<Vector2, TeleportPositionPair>> teleportPositionPairs = new(
             () => TeleportPositions
@@ -20,7 +20,7 @@ namespace Sokoban.Engine.Models
                     pair => pair.Key,
                     pair => pair.Value));
 
-        internal IReadOnlyDictionary<Vector2, TeleportPositionPair> TeleportPositionPairs => teleportPositionPairs.Value;
+        private IReadOnlyDictionary<Vector2, TeleportPositionPair> TeleportPositionPairs => teleportPositionPairs.Value;
 
         public bool TryGetOtherTeleportPosition(Vector2 position, [NotNullWhen(true)] out Vector2 result)
         {
@@ -51,6 +51,7 @@ namespace Sokoban.Engine.Models
                         .Add(targetPosition)
                 };
             }
+
             return this;
         }
     }
