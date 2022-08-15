@@ -31,7 +31,7 @@ namespace Sokoban.Monogame.Android
             spriteBatch = new SpriteBatch(GraphicsDevice);
             base.Initialize();
 
-            menu = new(Content.Load<SpriteFont>("Fonts/Font"), GraphicsDevice.PresentationParameters.Bounds);
+            menu = new(Content.Load<SpriteFont>("Fonts/Font"), GraphicsDevice.PresentationParameters.Bounds, Exit);
 
             foreach (var service in servicesRequiringLoadContent)
             {

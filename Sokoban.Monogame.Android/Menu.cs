@@ -1,36 +1,39 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input.Touch;
 
 namespace Sokoban.Monogame.Android
 {
     internal class Menu
     {
         private readonly SpriteFont font;
-        private readonly Rectangle screenRectangle;
         private readonly int fontScale;
         private readonly Vector2 screenCenter;
         private readonly IReadOnlyCollection<MenuItem> items;
 
-        public Menu(SpriteFont font, Rectangle screenRectangle)
+        public Menu(SpriteFont font, Rectangle screenRectangle, Action exit)
         {
             this.font = font;
-            this.screenRectangle = screenRectangle;
-            fontScale = screenRectangle.Width / 150;
+            fontScale = screenRectangle.Width / 150 / 3;
             screenCenter = screenRectangle.Center.ToVector2();
 
             var itemHeight = font.MeasureString("Aa").Y * fontScale;
             var verticalDistanceBetweenItems = itemHeight * 1.3f;
-            var levelSelect = CreateMenuItem("Level Select", 0, () => { });
-            var @continue = CreateMenuItem("Continue", -verticalDistanceBetweenItems, () => { });
-            var exit = CreateMenuItem("Exit", verticalDistanceBetweenItems, () => { });
-            items = new[] { levelSelect, @continue, exit };
+            var continueItem = CreateMenuItem("Continue", -verticalDistanceBetweenItems, () => { });
+            var levelSelectItem = CreateMenuItem("Level Select", 0, () => { });
+            var exitItem = CreateMenuItem("Exit", verticalDistanceBetweenItems, exit);
+            items = new[] { continueItem, levelSelectItem, exitItem };
         }
 
         public void Update()
         {
+            var pressedTouchLocations = TouchPanel
+                .GetState()
+                .Where(location => location.State == TouchLocationState.Pressed);
+
             foreach (var item in items)
             {
-                item.Update();
+                item.Update(pressedTouchLocations);
             }
         }
 
@@ -39,7 +42,7 @@ namespace Sokoban.Monogame.Android
             foreach (var item in items)
             {
                 item.Draw(spriteBatch);
-            };
+            }
         }
 
         private MenuItem CreateMenuItem(string text, float heightOffset, Action onSelect)

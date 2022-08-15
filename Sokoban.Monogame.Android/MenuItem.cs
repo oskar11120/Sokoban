@@ -22,19 +22,17 @@ namespace Sokoban.Monogame.Android
             this.text = text;
             this.position = position;
             this.onSelect = onSelect;
-
             sizeBeforeScale = font.MeasureString(text);
             sizeAfterScale = sizeBeforeScale * fontScale;
             var rectanglePosition = position - sizeAfterScale / 2;
             touchRectangle = new(rectanglePosition.ToPoint(), sizeAfterScale.ToPoint());
         }
 
-        public void Update()
+        public void Update(IEnumerable<TouchLocation> pressedTouchLocations)
         {
-            var touchStates = TouchPanel.GetState();
-            foreach (var touchState in touchStates)
+            foreach (var location in pressedTouchLocations)
             {
-                if (touchState.State == TouchLocationState.Pressed && touchRectangle.Contains(touchState.Position))
+                if (touchRectangle.Contains(location.Position))
                 {
                     onSelect();
                 }
