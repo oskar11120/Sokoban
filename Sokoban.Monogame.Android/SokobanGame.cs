@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Extensions.DependencyInjection;
 using Sokoban.Service;
+using Sokoban.Monogame.Android.Screens;
 
 namespace Sokoban.Monogame.Android
 {
@@ -12,7 +13,7 @@ namespace Sokoban.Monogame.Android
         private SpriteBatch spriteBatch;
         private readonly IEnumerable<IRequiringLoadContent> servicesRequiringLoadContent;
         private readonly IGameService gameService;
-        private Menu menu;
+        private MenuScreen menu;
 
         public SokobanGame()
         {

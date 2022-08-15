@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input.Touch;
 
-namespace Sokoban.Monogame.Android
+namespace Sokoban.Monogame.Android.Screens.Menu
 {
     internal class Menu
     {
