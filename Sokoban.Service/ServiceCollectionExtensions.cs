@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using LazyCache;
+using Microsoft.Extensions.DependencyInjection;
 using Sokoban.Service.Repositories;
 using static Sokoban.Service.Repositories.LevelDataJsonRepository;
 using static Sokoban.Service.Repositories.PlayerDataJsonRepository;
@@ -21,6 +22,7 @@ namespace Sokoban.Service
                 .AddSingleton<IPlayerDataRepository, PlayerDataJsonRepository>()
                 .AddSingleton<IBaseGameEventHandler, BaseGameEventHandler>()
                 .AddSingleton(gameEventHandlerFactory)
+                .AddSingleton<IAppCache>(new CachingService())
                 .AddSingleton<IGameService, GameService>();
         }
     }

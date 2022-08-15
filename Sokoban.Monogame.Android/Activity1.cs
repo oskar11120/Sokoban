@@ -1,6 +1,4 @@
-using Android.App;
 using Android.Content.PM;
-using Android.OS;
 using Android.Views;
 using Microsoft.Xna.Framework;
 
@@ -17,15 +15,12 @@ namespace Sokoban.Monogame.Android
     )]
     public class Activity1 : AndroidGameActivity
     {
-        private SokobanGame _game;
-        private View _view;
-
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
 
-            _game = new SokobanGame();
-            _view = _game.Services.GetService(typeof(View)) as View;
+            var _game = new SokobanGame();
+            var _view = _game.Services.GetService<View>();
 
             SetContentView(_view);
             _game.Run();

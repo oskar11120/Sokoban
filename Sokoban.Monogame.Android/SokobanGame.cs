@@ -12,28 +12,27 @@ namespace Sokoban.Monogame.Android
         private SpriteBatch spriteBatch;
         private readonly IEnumerable<IRequiringLoadContent> servicesRequiringLoadContent;
         private readonly IGameService gameService;
+        private Menu menu;
 
         public SokobanGame()
         {
-            graphics = new GraphicsDeviceManager(this);
+            graphics = new(this);
+            graphics.SupportedOrientations = DisplayOrientation.Portrait;
+            graphics.IsFullScreen = true;
+            graphics.ApplyChanges();
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            servicesRequiringLoadContent = Services.GetServices<IRequiringLoadContent>();
-            gameService = Services.GetRequiredService<IGameService>();
+            servicesRequiringLoadContent = ServiceProvider.Services.GetServices<IRequiringLoadContent>();
+            gameService = ServiceProvider.Services.GetRequiredService<IGameService>();
         }
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
-            base.Initialize();
-        }
-
-        protected override void LoadContent()
-        {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            base.Initialize();
 
-            // TODO: use this.Content to load your game content here
+            menu = new(Content.Load<SpriteFont>("Fonts/Font"), GraphicsDevice.PresentationParameters.Bounds);
+
             foreach (var service in servicesRequiringLoadContent)
             {
                 service.LoadContent(Content);
@@ -47,6 +46,8 @@ namespace Sokoban.Monogame.Android
 
             // TODO: Add your update logic here
 
+            menu.Update();
+
             base.Update(gameTime);
         }
 
@@ -54,7 +55,9 @@ namespace Sokoban.Monogame.Android
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            spriteBatch.Begin();
+            menu.Draw(spriteBatch);
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
@@ -64,5 +67,6 @@ namespace Sokoban.Monogame.Android
             ServiceProvider.Dispose();
             base.Dispose(disposing);
         }
+
     }
 }

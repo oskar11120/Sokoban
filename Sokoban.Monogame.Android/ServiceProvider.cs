@@ -14,6 +14,7 @@ namespace Sokoban.Monogame.Android
             return new ServiceCollection()
                 .AddSingleton<SoundPlayer>()
                 .AddSingleton<IRequiringLoadContent>(serviceProvider => serviceProvider.GetRequiredService<SoundPlayer>())
+                .AddSingleton(serviceProvider => serviceProvider.GetServices<IRequiringLoadContent>().ToArray())
                 .AddSokobanGameService(Settings.LevelDataDirectory, Settings.PlayerDataDirectory, serviceProvider => serviceProvider.GetRequiredService<SoundPlayer>())
                 .BuildServiceProvider();
         }

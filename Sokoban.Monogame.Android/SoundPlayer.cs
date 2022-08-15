@@ -1,51 +1,50 @@
 ﻿using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Media;
 using Sokoban.Service;
 
 namespace Sokoban.Monogame.Android
 {
     internal class SoundPlayer : IRequiringLoadContent, IGameEventHandler
     {
-        private SoundEffectLookup? soundEffects = null;
-        private SoundEffectLookup SoundEffects => soundEffects ?? throw new InvalidOperationException();
+        private SoundEffectLookup soundEffects;
 
         public void LoadContent(ContentManager contentManager)
         {
             soundEffects = new SoundEffectLookup(
-                contentManager.Load<SoundEffect>(nameof(SoundEffectLookup.Completion)),
-                contentManager.Load<SoundEffect>(nameof(SoundEffectLookup.Teleport)),
-                contentManager.Load<SoundEffect>(nameof(SoundEffectLookup.MovementBlockedByWall)),
-                contentManager.Load<SoundEffect>(nameof(SoundEffectLookup.TrashBagMovement)),
-                contentManager.Load<SoundEffect>(nameof(SoundEffectLookup.TrashEnteringTrashCan)));
+                contentManager.LoadSoundEffect(nameof(SoundEffectLookup.Completion)),
+                contentManager.LoadSoundEffect(nameof(SoundEffectLookup.Teleport)),
+                contentManager.LoadSoundEffect(nameof(SoundEffectLookup.MovementBlockedByWall)),
+                contentManager.LoadSoundEffect(nameof(SoundEffectLookup.TrashBagMovement)),
+                contentManager.LoadSoundEffect(nameof(SoundEffectLookup.TrashEnteringTrashCan)));
 
-            var music = contentManager.Load<SoundEffect>("Music").CreateInstance();
-            music.IsLooped = true;
-            music.Play();
+            var music = contentManager.LoadSound<Song>("Music");
+            MediaPlayer.Play(music);
         }
 
         public void OnCompletion()
         {
-            SoundEffects.Completion.Play();
+            soundEffects.Completion.Play();
         }
 
         public void OnMovementBlockedByWall()
         {
-            SoundEffects.MovementBlockedByWall.Play();
+            soundEffects.MovementBlockedByWall.Play();
         }
 
         public void OnTeleport()
         {
-            SoundEffects.Teleport.Play();
+            soundEffects.Teleport.Play();
         }
 
         public void OnTrashBagMovement()
         {
-            SoundEffects.TrashBagMovement.Play();
+            soundEffects.TrashBagMovement.Play();
         }
 
         public void OnTrashEnteringTrashCan()
         {
-            SoundEffects.TrashEnteringTrashCan.Play();
+            soundEffects.TrashEnteringTrashCan.Play();
         }
 
         public void OnTrashLeavingTrashCan()
@@ -58,5 +57,20 @@ namespace Sokoban.Monogame.Android
             SoundEffect MovementBlockedByWall,
             SoundEffect TrashBagMovement,
             SoundEffect TrashEnteringTrashCan);
+    }
+
+    internal static class ContentManagerSoundEffectExtensions
+    {
+        public static TSound LoadSound<TSound>(this ContentManager contentManager, string name)
+        {
+            return contentManager
+                .Load<TSound>($"Sounds/{name}");
+        }
+
+        public static SoundEffect LoadSoundEffect(this ContentManager contentManager, string name)
+        {
+            return contentManager
+                .LoadSound<SoundEffect>(name);
+        }
     }
 }
