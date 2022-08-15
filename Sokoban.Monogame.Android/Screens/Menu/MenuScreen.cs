@@ -4,23 +4,23 @@ using Microsoft.Xna.Framework.Input.Touch;
 
 namespace Sokoban.Monogame.Android.Screens.Menu
 {
-    internal class Menu
+    internal class MenuScreen
     {
         private readonly SpriteFont font;
-        private readonly int fontScale;
+        private readonly float fontScale;
         private readonly Vector2 screenCenter;
         private readonly IReadOnlyCollection<MenuItem> items;
 
-        public Menu(SpriteFont font, Rectangle screenRectangle, Action exit)
+        public MenuScreen(SpriteFont font, float fontScale, Rectangle screenRectangle, Action exit, GameState gameState)
         {
             this.font = font;
-            fontScale = screenRectangle.Width / 150 / 3;
+            this.fontScale = fontScale;
             screenCenter = screenRectangle.Center.ToVector2();
 
             var itemHeight = font.MeasureString("Aa").Y * fontScale;
             var verticalDistanceBetweenItems = itemHeight * 1.3f;
-            var continueItem = CreateMenuItem("Continue", -verticalDistanceBetweenItems, () => { });
-            var levelSelectItem = CreateMenuItem("Level Select", 0, () => { });
+            var continueItem = CreateMenuItem("Continue", -verticalDistanceBetweenItems, gameState.OpenCurrentGameScreen);
+            var levelSelectItem = CreateMenuItem("Level Select", 0, gameState.OpenLevelSelectionScreen);
             var exitItem = CreateMenuItem("Exit", verticalDistanceBetweenItems, exit);
             items = new[] { continueItem, levelSelectItem, exitItem };
         }

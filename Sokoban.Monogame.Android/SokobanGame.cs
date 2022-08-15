@@ -1,19 +1,22 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Microsoft.Extensions.DependencyInjection;
 using Sokoban.Service;
-using Sokoban.Monogame.Android.Screens;
+using Sokoban.Monogame.Android.Screens.Menu;
+using Sokoban.Monogame.Android.Screens.LevelSelect;
 
 namespace Sokoban.Monogame.Android
 {
     public class SokobanGame : Game
     {
-        private GraphicsDeviceManager graphics;
-        private SpriteBatch spriteBatch;
         private readonly IEnumerable<IRequiringLoadContent> servicesRequiringLoadContent;
         private readonly IGameService gameService;
-        private MenuScreen menu;
+        private readonly GameState gameState = new();
+
+        private GraphicsDeviceManager graphics;
+        private SpriteBatch spriteBatch;
+        private MenuScreen menuScreen;
+        private LevelSelectScreen levelSelectScreen;
 
         public SokobanGame()
         {
@@ -32,7 +35,11 @@ namespace Sokoban.Monogame.Android
             spriteBatch = new SpriteBatch(GraphicsDevice);
             base.Initialize();
 
-            menu = new(Content.Load<SpriteFont>("Fonts/Font"), GraphicsDevice.PresentationParameters.Bounds, Exit);
+            var screenRectangle = GraphicsDevice.PresentationParameters.Bounds;
+            var font = Content.Load<SpriteFont>("Fonts/Font");
+            var fontScale = screenRectangle.Width / 150 / 3;
+            menuScreen = new(font, fontScale, screenRectangle, Exit, gameState);
+            levelSelectScreen = new(screenRectangle, font, fontScale, gameService, gameState);
 
             foreach (var service in servicesRequiringLoadContent)
             {
@@ -42,12 +49,11 @@ namespace Sokoban.Monogame.Android
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-
             // TODO: Add your update logic here
-
-            menu.Update();
+            gameState.Switch(
+                menuScreen.Update,
+                levelSelectScreen.Update,
+                _ => { });
 
             base.Update(gameTime);
         }
@@ -57,7 +63,12 @@ namespace Sokoban.Monogame.Android
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
-            menu.Draw(spriteBatch);
+
+            gameState.Switch(
+                () => menuScreen.Draw(spriteBatch),
+                () => levelSelectScreen.Draw(spriteBatch),
+                _ => { });
+
             spriteBatch.End();
 
             base.Draw(gameTime);
